@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Data for plotting
 t = np.arange(-50.0, 50.0, 0.01)
 y1 = 2*np.cos(t)
 y2 = np.cos(t/3)
