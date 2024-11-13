@@ -25,8 +25,8 @@ plt.plot(g_conv)
 plt.show()
 
 G = fft(g)
-#plt.plot(f, np.abs(fftshift(G)), '-')
-#plt.show()
+plt.plot(f, np.abs(fftshift(G)), '-')
+plt.show()
 
 Gauss = fft(gauss)
 fgauss = np.linspace(-30, 30, 100)
@@ -34,8 +34,8 @@ plt.plot(fgauss, fftshift(np.abs(Gauss)), '-')
 plt.show()
 
 G_conv = fft(g_conv)
-#plt.plot(f, np.abs(fftshift(G_conv)), '-')
-#plt.show()
+plt.plot(f, np.abs(fftshift(G_conv)), '-')
+plt.show()
 
 g1 = loadmat("piece_regular.mat")['piece_regular']
 g1 = g.squeeze()
