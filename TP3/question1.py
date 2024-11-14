@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cmath as cm
+
+from scipy import integrate
 from scipy.io import loadmat
 from scipy.fft import fft, fftshift, ifft, ifft2, fftfreq
 
@@ -9,7 +11,7 @@ from scipy.fft import fft, fftshift, ifft, ifft2, fftfreq
 #Variables
 sigma = 6
 N = 1024
-t = np.linspace(-4*sigma, 4*sigma,N)
+t = np.linspace(-512, 512,N)
 dt = t[1] - t[0]
 f = fftfreq(N, float(dt))
 
@@ -32,7 +34,7 @@ plt.show()
 GaussFFT = fft(gauss) * dt #Création numérique de la TF de la Gaussienne 1D
 #Visualisation
 plt.title("b) TF de Gaussienne 1D calculée numériquement")
-plt.plot(np.abs(GaussFFT))
+plt.plot(np.abs(fftshift(GaussFFT)))
 plt.show()
 
 
@@ -52,14 +54,14 @@ plt.show()
 #Visualisation
 p_conv = np.convolve(piece_regular_bruit.squeeze(),gauss, 'same') #Convolution du piece regular bruité
 plt.title("d) i. convolution du piece regular bruité")
-plt.plot(t, p_conv)
+plt.plot(p_conv)
 plt.show()
 
 #--ii.
 piece_regularFFt = fft(piece_regular_bruit.squeeze()) #Création de la FFT du piece regular
 #Visualisation
 plt.title("d) ii. FFT du piece regular")
-plt.plot( np.abs(fftshift(piece_regularFFt)))
+plt.plot(np.abs(fftshift(piece_regularFFt)))
 plt.show()
 
 produit_FFT = piece_regularFFt * GaussFFT #Multiplication des deux FFT
@@ -69,8 +71,17 @@ plt.title("d) ii. Produit des TFs")
 plt.plot(np.abs(fftshift(produit_FFT_inv)))
 plt.show()
 
-plt.title("Comparaison")
-plt.plot(np.abs(fftshift(produit_FFT_inv)), label="prod")
-plt.plot(p_conv, label="conv")
-plt.legend()
+#--iii.
+#Visualisation
+fig, ax = plt.subplots(3)
+fig.suptitle("c) piece regular")
+ax[0].plot(np.abs(produit_FFT_inv), label="produit des transformées")
+ax[1].plot(np.abs(fftshift(produit_FFT_inv)), label="produit des transformées inversé")
+ax[2].plot(p_conv, label="convolution")
 plt.show()
+
+print('On remarque que la multiplication des transformées Fourier donne une convolution qui est symétriquement inversé.')
+
+#--iv.
+planchere_temp = integrate.quad(piece_regular, -np.inf, np.inf, args=(t,))
+print(planchere_temp)
