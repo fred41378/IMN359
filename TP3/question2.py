@@ -1,5 +1,3 @@
-from distutils.util import Mixin2to3
-
 import numpy as np
 import matplotlib.pyplot as plt
 import cmath as cm
@@ -41,11 +39,17 @@ ax[1].imshow(fftshift(np.log(np.abs(lena_fenetre_FFT))))
 plt.show()
 
 #---e) Filtre passe-bas---
-M1 = 10
-M2 = 1000
-M3 = 3000
-lenaFFTM1 = lenaFFT[-M1][M1]
-lenaFFTM2 = lenaFFT[-M2][M2]
-lenaFFTM3 = lenaFFT[-M3][M3]
-plt.plot(lenaFFTM1)
+n = 512 # size of mandrill
+m = n / 2 # Number of coefficients in X and Y
+F1 = np.zeros((n, n), dtype=complex)
+
+sel = np.array([n / 2 - m / 2 , n / 2 + m / 2 + 1], dtype=int)+1
+F1[sel[0]:sel[1],sel[1]] = lenaFFT[sel[0]:sel[1],sel[0]:sel[1]]
+
+fig, axs = plt.subplots(1,2)
+axs[0].imshow(np.log(np.abs(F1)), cmap='gray')
+axs[0].set_title('Cropped spectrum : ' + str(m*m/(n*n)*100) + '% of coefficients')
+axs[1].imshow(lena, cmap='gray')
+axs[1].set_title('Original spectrum')
+plt.savefig('mandrill_spectre.jpg')
 plt.show()
