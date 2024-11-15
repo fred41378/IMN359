@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from scipy.fft import fft2, fft, fftshift, ifft, ifft2, fftfreq, ifftshift
 
-N = 512
+lena = loadmat('lena.mat')['M'] #Chargement du fichier
+N = lena.shape[0]
 t = np.linspace(-np.pi, np.pi, N)
 
 #---a) Création du filtre cosinus---
@@ -22,7 +23,7 @@ plt.imshow(filtre_cos2D, extent=(-np.pi, np.pi, -np.pi, np.pi))
 plt.show()
 
 #---c) Chargement de Lena et sa TF---
-lena = loadmat('lena.mat')['M'] #Chargement du fichier
+
 lenaFFT = fft2(lena) #Transformée du fichier
 fig, ax = plt.subplots(2)
 ax[0].imshow(lena)
@@ -40,19 +41,17 @@ plt.show()
 #---e) Filtre passe-bas---
 
 lenaFFT_shift = fftshift(lenaFFT)
-centre = (N // 2, N // 2)
 
 M1 = 64
 M2 = 256
 M3 = 360
 
-
 masque1 = np.zeros_like(lenaFFT_shift)
 masque2 = np.zeros_like(lenaFFT_shift)
 masque3 = np.zeros_like(lenaFFT_shift)
-masque1[centre[0] - M1//2 : centre[0] + M1//2, centre[1] - M1//2:centre[1] + M1//2] = 1
-masque2[centre[0] - M2//2 : centre[0] + M2//2, centre[1] - M2//2:centre[1] + M2//2] = 1
-masque3[centre[0] - M3//2 : centre[0] + M3//2, centre[1] - M3//2:centre[1] + M3//2] = 1
+masque1[N//2 - M1//2 : N//2  + M1//2, N//2  - M1//2 : N//2  + M1//2] = 1
+masque2[N//2 - M2//2 : N//2  + M2//2, N//2  - M2//2 : N//2  + M2//2] = 1
+masque3[N//2 - M3//2 : N//2  + M3//2, N//2  - M3//2 : N//2  + M3//2] = 1
 
 lenaFFT_centre1 = lenaFFT_shift * masque1
 lenaFFT_centre2 = lenaFFT_shift * masque2
@@ -70,8 +69,17 @@ lena_filtre1 = ifft2(ifftshift(lenaFFT_centre1))
 lena_filtre2 = ifft2(ifftshift(lenaFFT_centre2))
 lena_filtre3 = ifft2(ifftshift(lenaFFT_centre3))
 
+pourcentage1 = np.round((M1/N)*100)
+pourcentage2 = np.round((M2/N)*100)
+pourcentage3 = np.round((M3/N)*100)
+
 fig, ax = plt.subplots(1, 3)
+fig.set_size_inches(10, 10)
+fig.tight_layout(pad=1)
 ax[0].imshow(np.real(lena_filtre1))
+ax[0].set_title(f"{pourcentage1}% des points utilisé")
 ax[1].imshow(np.real(lena_filtre2))
+ax[1].set_title(f"{pourcentage2}% des points utilisé")
 ax[2].imshow(np.real(lena_filtre3))
+ax[2].set_title(f"{pourcentage3}% des points utilisé")
 plt.show()

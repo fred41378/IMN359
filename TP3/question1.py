@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import cmath as cm
-
-from scipy import integrate
 from scipy.io import loadmat
 from scipy.fft import fft, fftshift, ifft, ifft2, fftfreq
 
@@ -83,5 +80,3 @@ plt.show()
 print('On remarque que la multiplication des transformées Fourier donne une convolution qui est symétriquement inversé.')
 
 #--iv.
-planchere_temp = integrate.quad(piece_regular, -np.inf, np.inf, args=(t,))
-print(planchere_temp)

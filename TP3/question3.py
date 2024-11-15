@@ -1,17 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.interpolate import griddata
 from scipy.io import loadmat
-from scipy.fft import ifft2, fftshift
+from scipy.fft import ifft2, fftshift, fft2
 
 
 #---a) IRM avec N lignes---
 IRM = loadmat('IRM.mat')['IRM']
 N = IRM.shape[0]
 
-#------------------------------------#
+#-------------------------------------#
 #---*** 0=lignes |*| 1=colonnes ***---#
-#------------------------------------#
+#-------------------------------------#
 def imageSurN(N, direction):
 
     IRM_Modif = IRM.copy()
@@ -43,18 +42,11 @@ imageSurN(4,1)
 
 def zero_padding(format):
 
-    IRM_padded = np.zeros((format, format), dtype=complex)
+    IRM_shift = fftshift(IRM.copy())
+    IRM_shift = np.reshape(IRM_shift, (format,format), order='A')
 
-    x = (format - IRM.shape[0]) // 2
-    y = (format -  IRM.shape[0]) // 2
 
-    IRM_padded[x:x + IRM.shape[0], y:y + IRM.shape[1]] = IRM
-
-    IRM_IFFT = np.abs(ifft2(IRM_padded))
-
-    # Visualisation
-    plt.imshow(IRM_IFFT)
-    plt.title(f"IRM reconstruite avec zero padding {format}x{format}")
+    plt.imshow(np.log(np.abs(IRM_shift)))
     plt.show()
 
 zero_padding(600)
@@ -63,8 +55,12 @@ zero_padding(1024)
 
 #---d) échantillonage radial---
 
-#à l'aide
+def masqueRadian(angle):
+    masque = np.zeros((N,N))
 
+    plt.imshow(masque)
+    plt.show()
+masqueRadian(90)
 #---e) échantillonage aléatoire---
 
 def echantillonRand(pourcentage):
@@ -73,19 +69,23 @@ def echantillonRand(pourcentage):
     Ensuite créer un masque où tout les nombres de la matrice aléatoire qui sont supperieur
     au pourcentage souhaité sont garder
     """
+    IRM_copy = IRM.copy()
     matrice_random = np.random.rand(N, N) #Matrice de taille N avec des nombre aleatoire
-    masque = matrice_random > (pourcentage / 100) #Masque selon les critere voulu
+    masque = matrice_random > (pourcentage / 100)  #Masque selon les critere voulu
 
-
-    IRM_sampled = IRM.copy()
+    IRM_sampled = np.ones((N, N), dtype=complex)
     IRM_sampled[masque] = 0  # Mettre à zéro les points non sélectionnés
 
-    image_reconstructed = np.abs(ifft2(IRM_sampled)) #Reconstruction de l'image
+    image_reconstructed = IRM_copy*IRM_sampled #Reconstruction de l'image
+
 
     #Visualisation
-    plt.imshow(image_reconstructed)
-    plt.title(f"{pourcentage}% des points utilisés")
+    fig, ax = plt.subplots(1,2)
+    ax[0].imshow(np.abs(IRM_sampled))
+    ax[1].imshow(np.abs(ifft2(image_reconstructed)))
+    fig.suptitle(f"{pourcentage}% de points utilisé")
     plt.show()
+
 
 echantillonRand(30)
 echantillonRand(60)
