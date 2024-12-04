@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.fft import ifft2, fftshift
+from scipy.fft import ifft2, fftshift, ifftshift
 from scipy.io import loadmat
 
 #---a) IRM avec N lignes---
@@ -13,19 +13,28 @@ N = IRM.shape[0]
 def imageSurN(N, direction):
 
     IRM_Modif = IRM.copy()
+    masque = np.ones_like(IRM_Modif)
     if direction == 0:
-        IRM_Modif[::N, :] = 0
+        masque[::N, :] = 0
     elif direction == 1:
-        IRM_Modif[:,::N] = 0
+        masque[:,::N] = 0
 
+    IRM_Modif *= masque
     total_de_points = np.count_nonzero(IRM_Modif)
     pourcentage = (total_de_points / IRM_Modif.size) * 100
 
     IRM_IFFT = np.abs(ifft2(IRM_Modif))
 
     # Visualisation
-    plt.imshow(IRM_IFFT)
-    plt.title(f"{pourcentage:.2f}% des points utilisés")
+    fig, ax = plt.subplots(1,2)
+    ax[0].imshow(np.abs(masque), cmap='gray')
+    ax[1].imshow(np.abs(IRM_IFFT))
+    plt.suptitle("Reconstruction de l\'image en utilisant " + str(
+        (1 - (1 / N)) * 100) + "% des points. \n (Avec une ligne sur " + str(N) + " en moins)")
+    if direction == 0:
+        plt.savefig('question3a_'+str(N)+'.png')
+    elif direction == 1:
+        plt.savefig('question3b_'+str(N)+'.png')
     plt.show()
 
 imageSurN(2,0)
@@ -45,7 +54,7 @@ def zero_padding(format):
     # Apply padding
     padded_matrix = np.pad(IRM_Modif,[((format-N)//2),((format-N)//2)],)
     print(padded_matrix.shape)
-    plt.imshow(fftshift(np.log(np.abs(fftshift(ifft2(padded_matrix))))))
+    plt.imshow(fftshift(np.abs(fftshift(ifft2(padded_matrix)))))
     plt.show()
 
 zero_padding(600)
@@ -79,19 +88,15 @@ def echantillonnage_radial(angle):
     IRM_fenetre_FFT = ifft2(IRM_fenetre)
 
     fig, ax = plt.subplots(1,3)
-    ax[0].imshow(np.log(np.abs(ifft2(IRM_Modif))))
+    ax[0].imshow(np.abs(ifft2(IRM_Modif)))
     ax[1].imshow(masque)
-    ax[2].imshow(np.log(np.abs(IRM_fenetre_FFT)))
+    ax[2].imshow(np.abs(IRM_fenetre_FFT))
     plt.show()
 
 
 echantillonnage_radial(10)
 echantillonnage_radial(30)
 echantillonnage_radial(70)
-echantillonnage_radial(90)
-echantillonnage_radial(180)
-echantillonnage_radial(270)
-echantillonnage_radial(360)
 
 
 #---e) échantillonage aléatoire---
@@ -104,7 +109,7 @@ def echantillonnage_aleatoire(pourcentage):
     """
     IRM_copy = IRM.copy()
     matrice_random = np.random.rand(N, N) #Matrice de taille N avec des nombre aleatoire
-    masque = matrice_random > (pourcentage / 100)  #Masque selon les critere voulu
+    masque = matrice_random >= (pourcentage / 100)  #Masque selon les critere voulu
 
     IRM_sampled = np.ones((N, N), dtype=complex)
     IRM_sampled[masque] = 0  # Mettre à zéro les points non sélectionnés

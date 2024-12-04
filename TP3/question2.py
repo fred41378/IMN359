@@ -13,7 +13,7 @@ filtre_cos = 0.5 * np.cos(t) + 0.5
 plt.plot(t, filtre_cos)
 plt.show()
 
-#---b) Création ddu filtre en 2D---
+#---b) Création du filtre en 2D---
 x = np.linspace(-np.pi, np.pi, N)
 y = np.linspace(-np.pi, np.pi, N)
 X,Y = np.meshgrid(x,y)
@@ -32,16 +32,18 @@ plt.show()
 
 #---d) Fenêtrage et sa transformée de fourier---
 lena_fenetre = lena * filtre_cos2D
-lena_fenetre_FFT = ifft2(lena_fenetre)
-fig, ax = plt.subplots(2)
+lena_fenetre_FFT = fft2(lena_fenetre)
+fig, ax = plt.subplots(1,2)
 ax[0].imshow(lena_fenetre)
 ax[1].imshow(fftshift(np.log(np.abs(lena_fenetre_FFT))))
+plt.suptitle('Fenêtrage de Lena et sa transformée de Fourier')
+plt.savefig('question2d.png')
 plt.show()
 
 #---e) Filtre passe-bas---
 
 lenaFFT_shift = fftshift(lenaFFT)
-
+1
 M1 = 64
 M2 = 256
 M3 = 360
